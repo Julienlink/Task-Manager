@@ -72,7 +72,6 @@ app.get("/taches/:id", async (req, res) => {
 app.post("/taches/create",async(req,res) =>{
   try {
     const data = req.body; 
-    console.log(data);
     // Si dateCreation est vide → mettre la date actuelle
     
     if (!data.dateCreation || data.dateCreation.trim() === "") {
