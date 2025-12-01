@@ -1,0 +1,59 @@
+<form action="/taches/create" method="POST">
+
+  <!-- TACHE -->
+  <!-- Titre (Requis)-->
+  <label>Titre</label>
+  <input type="text" name="titre" required>
+
+  <!-- Description -->
+  <label>Description</label>
+  <textarea name="description"></textarea>
+
+  <!-- Date de création -->
+  <label>Date de création</label>
+  <input type="date" name="dateCreation">
+
+  <!-- Échéance -->
+  <label>Échéance</label>
+  <input type="date" name="echeance">
+
+  <!-- Statut (requis) -->
+  <label>Statut</label>
+  <select name="statut" required>
+    <option>à faire</option>
+    <option>en cours</option>
+    <option>terminée</option>
+    <option>annulée</option>
+  </select>
+
+  <!-- Priorité (requis) -->
+  <label>Priorité</label>
+  <select name="priorite" required>
+    <option>basse</option>
+    <option>moyenne</option>
+    <option>haute</option>
+    <option>critique</option>
+  </select>
+
+  <!-- Catégorie -->
+  <label>Catégorie</label>
+  <input type="text" name="categorie">
+
+
+<!-- AUTEUR -->
+  <h3>Auteur</h3>
+<!-- Nom -->
+  <label>Nom</label>
+  <input type="text" name="auteurNom" required>
+<!-- Prénom -->
+  <label>Prénom</label>
+  <input type="text" name="auteurPrenom" required>
+<!-- Email -->
+  <label>Email</label>
+  <input type="email" name="auteurEmail" required>
+
+  <br><br>
+  <!-- VALIDER -->
+  <button type="submit">Créer la tâche</button>
+</form>
+

@@ -1,5 +1,7 @@
-const express = require('express');
-const mongoose = require('mongoose');
+const express = require("express");
+const mongoose = require("mongoose");
+const hbs = require("hbs");
+const path = require("path");
 require('dotenv').config();
 
 
@@ -20,6 +22,13 @@ const connectDB = async () => {
   }
 };
 
+app.set("view engine","hbs");
+app.set('views', path.join(__dirname, 'views'));
+
+hbs.registerPartials(path.join(__dirname, "/views/partials"))
+
+
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 //connection avec la base de données
@@ -29,11 +38,11 @@ const Tache = mongoose.model("Tache", tacheSchema, "tasks"); // "taches" = nom d
 
 //initialise les routes
 app.get("/", (req, res) => {
-  res.redirect("/task");
+  res.render("index");
 });
 
 
-app.get("/task", async (req,res)=>{
+app.get("/taches", async (req,res)=>{
   try {
     const titres = await Tache.find({}, { titre: 1, _id: 0 }); // récupère uniquement le champ titre
     // Concatène les titres dans une chaîne
@@ -45,10 +54,66 @@ app.get("/task", async (req,res)=>{
   }
 });
 
-app.get("/taches/:id", (req, res) => {
-  const id = req.params.id; // Récupéré depuis l'URL
-  res.send(`Pas de page mais tu as demander l'id: ${id}`);
+
+app.get("/taches/create", async(req,res) =>{
+  res.render("post/create");
+})
+
+app.get("/taches/:id", async (req, res) => {
+  const idReq = req.params.id; // Récupéré depuis l'URL
+  const task = await Tache.find({id:idReq},{ titre: 1, _id: 0 })
+  res.send(`Pas de page mais tu as demander la tache d'id: ${task.id}, nommée ${task.titre}`);
 });
+
+
+
+
+
+app.post("/taches/create",async(req,res) =>{
+  try {
+    const data = req.body; 
+    console.log(data);
+    // Si dateCreation est vide → mettre la date actuelle
+    
+    if (!data.dateCreation || data.dateCreation.trim() === "") {
+      data.dateCreation = new Date();
+    }
+
+    // Création de la tâche
+    const nouvelleTache = new Tache({
+      titre: data.titre,
+      description: data.description || "",
+      dateCreation: data.dateCreation,
+      echeance: data.echeance ? new Date(data.echeance) : null,
+      statut: data.statut,
+      priorite: data.priorite,
+      auteur: {
+        nom: data.auteurNom,
+        prenom: data.auteurPrenom,
+        email: data.auteurEmail
+      },
+      categorie: data.categorie || "",
+      sousTaches: [],
+      commentaires: [],
+      historiqueModifications: []
+    });
+
+    await nouvelleTache.save();
+
+    // Redirection ou confirmation
+    res.redirect("/taches");
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Erreur lors de la création de la tâche");
+  }
+})
+
+app.post("/taches/:id", async(req,res) =>{
+  const idCurrent = req.params.id;
+  Tache.deleteOne({id:idCurrent});
+})
+
 
 //lance le serveur web
 app.listen(PORT, (error) =>{
