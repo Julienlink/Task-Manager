@@ -5,6 +5,7 @@ const Tache = mongoose.models.Tache
 const express = require("express");
 const router = express.Router();
 
+// Show All
 router.get("/", async (req,res)=>{
   try {
     const titres = await Tache.find({}, { titre: 1, _id: 0 }); // récupère uniquement le champ titre
@@ -18,19 +19,12 @@ router.get("/", async (req,res)=>{
 });
 
 
+
+
+// Create
 router.get("/create", async(req,res) =>{
   res.render("post/create");
 })
-
-router.get("/:id", async (req, res) => {
-  const idReq = req.params.id; // Récupéré depuis l'URL
-  const task = await Tache.find({id:idReq},{ titre: 1, _id: 0 })
-  res.send(`Pas de page mais tu as demander la tache d'id: ${task.id}, nommée ${task.titre}`);
-});
-
-
-
-
 
 router.post("/create",async(req,res) =>{
   try {
@@ -71,10 +65,20 @@ router.post("/create",async(req,res) =>{
   }
 })
 
-router.post("/:id", async(req,res) =>{
+
+
+// Delete
+router.post("/:id/delete", async(req,res) =>{
   const idCurrent = req.params.id;
   Tache.deleteOne({id:idCurrent});
 })
+
+// Show individual
+router.get("/:id", async (req, res) => {
+  const idReq = req.params.id; // Récupéré depuis l'URL
+  const task = await Tache.find({id:idReq},{ titre: 1, _id: 0 })
+  res.send(`Pas de page mais tu as demander la tache d'id: ${task.id}, nommée ${task.titre}`);
+});
 
 module.exports = {
     router,
