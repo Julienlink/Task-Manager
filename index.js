@@ -1,5 +1,7 @@
-const express = require('express');
-const mongoose = require('mongoose');
+const express = require("express");
+const mongoose = require("mongoose");
+const hbs = require("hbs");
+const path = require("path");
 require('dotenv').config();
 
 
@@ -20,9 +22,35 @@ const connectDB = async () => {
   }
 };
 
+app.set("view engine","hbs");
+app.set('views', path.join(__dirname, 'src/views'));
+
+hbs.registerPartials(path.join(__dirname, "/src/views/partials"))
+
+
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+//connection avec la base de données
 connectDB();
+const tacheSchema = new mongoose.Schema({}, { strict: false }); // accepte tous les champs
+const Tache = mongoose.model("Tache", tacheSchema, "tasks"); // "taches" = nom de ta collection
+
+//initialise les routes
+app.get("/", (req, res) => {
+  res.render("index");
+});
+
+//inclure les routes
+const router = require("./src/router/routes");
+app.use("/",router.router);
+
+
+
+
+
+
+//lance le serveur web
 app.listen(PORT, (error) =>{
     if(!error)
         console.log("Server is Successfully Running, and App is listening on http://localhost:"+ PORT);
@@ -30,3 +58,5 @@ app.listen(PORT, (error) =>{
         console.log("Error occurred, server can't start", error);
     } 
 );
+
+
