@@ -8,10 +8,8 @@ const router = express.Router();
 // Show All
 router.get("/", async (req,res)=>{
   try {
-    const titres = await Tache.find({}, { titre: 1, _id: 0 }); // récupère uniquement le champ titre
-    // Concatène les titres dans une chaîne
-    const listeTitres = titres.map(t => t.titre).join(", ");
-    res.send("Pas de page mais titres des tâches : " + listeTitres);
+    const tasks = await Tache.find({});
+    res.render("tasks/index", { tasks: tasks });
   } catch (err) {
     console.error(err);
     res.status(500).send("Erreur serveur");
@@ -23,7 +21,7 @@ router.get("/", async (req,res)=>{
 
 // Create
 router.get("/create", async(req,res) =>{
-  res.render("post/create");
+  res.render("tasks/create");
 })
 
 router.post("/create",async(req,res) =>{
@@ -75,9 +73,21 @@ router.post("/:id/delete", async(req,res) =>{
 
 // Show individual
 router.get("/:id", async (req, res) => {
-  const idReq = req.params.id; // Récupéré depuis l'URL
-  const task = await Tache.find({id:idReq},{ titre: 1, _id: 0 })
-  res.send(`Pas de page mais tu as demander la tache d'id: ${task.id}, nommée ${task.titre}`);
+  try {
+    const idReq = req.params.id; // Récupéré depuis l'URL
+    const task = await Tache.findOne({ _id: idReq });
+
+    if (!task) {
+      return res.status(404).send("Tâche non trouvée");
+    }
+
+    res.render("tasks/detail", { task: task });
+    
+  }
+  catch (err) {
+    console.error(err);
+    res.status(500).send("Erreur serveur");
+  }
 });
 
 module.exports = {
