@@ -67,8 +67,15 @@ router.post("/create",async(req,res) =>{
 
 // Delete
 router.post("/:id/delete", async(req,res) =>{
-  const idCurrent = req.params.id;
-  Tache.deleteOne({id:idCurrent});
+  try{
+    const idCurrent = req.params.id;
+    const result = await Tache.findByIdAndDelete(idCurrent);
+     res.status(201).redirect("/tasks");
+  }
+  catch(err){
+    console.error(err);
+    res.status(500).send("Erreur serveur");
+  }
 })
 
 // Show individual

@@ -5,6 +5,12 @@
         <li class="item">
             <p >Description :{{task.description}}</p> 
         </li>
-    </ul>
+
+    <form action="/tasks/{{task.id}}/delete" method="POST" class="inline-form">
+        <button type="submit" class="btn delete-btn">Supprimer</button>
+    </form>
+    <form action="/tasks/{{task.id}}/edit" method="GET" class="inline-form">
+        <button type="submit" class="btn edit-btn">Modifier</button>
+    </form>
 
 </div>
