@@ -55,7 +55,7 @@ router.post("/create",async(req,res) =>{
     await nouvelleTache.save();
 
     // Redirection ou confirmation
-    res.redirect("/");
+    res.redirect("/tasks");
 
   } catch (err) {
     console.error(err);
