@@ -78,6 +78,53 @@ router.post("/:id/delete", async(req,res) =>{
   }
 })
 
+// Edit 
+router.get("/:id/edit", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const task = await Tache.findOne({ _id: id });
+    if (!task) return res.status(404).send("Tâche non trouvée");
+    res.render("tasks/edit", { task:task });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Erreur serveur");
+  }
+});
+
+// Edit - submit changes
+router.post("/:id/edit", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const data = req.body;
+
+    const update = {
+      titre: data.titre,
+      description: data.description || "",
+      dateCreation: data.dateCreation ? new Date(data.dateCreation) : undefined,
+      echeance: data.echeance ? new Date(data.echeance) : null,
+      statut: data.statut,
+      priorite: data.priorite,
+      auteur: {
+        nom: data.auteurNom,
+        prenom: data.auteurPrenom,
+        email: data.auteurEmail
+      },
+      categorie: data.categorie || ""
+    };
+
+    // Remove undefined keys so they don't overwrite existing values
+    Object.keys(update).forEach(k => update[k] === undefined && delete update[k]);
+
+    const task = await Tache.findByIdAndUpdate(id, update, { new: true });
+    if (!task) return res.status(404).send("Tâche non trouvée");
+
+    res.redirect(`/tasks/${task._id}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Erreur lors de la modification de la tâche");
+  }
+});
+
 // Show individual
 router.get("/:id", async (req, res) => {
   try {
