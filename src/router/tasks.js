@@ -8,10 +8,8 @@ const router = express.Router();
 // Show All
 router.get("/", async (req,res)=>{
   try {
-    const titres = await Tache.find({}, { titre: 1, _id: 0 }); // récupère uniquement le champ titre
-    // Concatène les titres dans une chaîne
-    const listeTitres = titres.map(t => t.titre).join(", ");
-    res.send("Pas de page mais titres des tâches : " + listeTitres);
+    const tasks = await Tache.find({});
+    res.render("tasks/index", { tasks: tasks });
   } catch (err) {
     console.error(err);
     res.status(500).send("Erreur serveur");
@@ -23,7 +21,7 @@ router.get("/", async (req,res)=>{
 
 // Create
 router.get("/create", async(req,res) =>{
-  res.render("post/create");
+  res.render("tasks/create");
 })
 
 router.post("/create",async(req,res) =>{
@@ -57,7 +55,7 @@ router.post("/create",async(req,res) =>{
     await nouvelleTache.save();
 
     // Redirection ou confirmation
-    res.redirect("/");
+    res.redirect("/tasks");
 
   } catch (err) {
     console.error(err);
@@ -69,15 +67,81 @@ router.post("/create",async(req,res) =>{
 
 // Delete
 router.post("/:id/delete", async(req,res) =>{
-  const idCurrent = req.params.id;
-  Tache.deleteOne({id:idCurrent});
+  try{
+    const idCurrent = req.params.id;
+    const result = await Tache.findByIdAndDelete(idCurrent);
+     res.status(201).redirect("/tasks");
+  }
+  catch(err){
+    console.error(err);
+    res.status(500).send("Erreur serveur");
+  }
 })
+
+// Edit 
+router.get("/:id/edit", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const task = await Tache.findOne({ _id: id });
+    if (!task) return res.status(404).send("Tâche non trouvée");
+    res.render("tasks/edit", { task:task });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Erreur serveur");
+  }
+});
+
+// Edit - submit changes
+router.post("/:id/edit", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const data = req.body;
+
+    const update = {
+      titre: data.titre,
+      description: data.description || "",
+      dateCreation: data.dateCreation ? new Date(data.dateCreation) : undefined,
+      echeance: data.echeance ? new Date(data.echeance) : null,
+      statut: data.statut,
+      priorite: data.priorite,
+      auteur: {
+        nom: data.auteurNom,
+        prenom: data.auteurPrenom,
+        email: data.auteurEmail
+      },
+      categorie: data.categorie || ""
+    };
+
+    // Remove undefined keys so they don't overwrite existing values
+    Object.keys(update).forEach(k => update[k] === undefined && delete update[k]);
+
+    const task = await Tache.findByIdAndUpdate(id, update, { new: true });
+    if (!task) return res.status(404).send("Tâche non trouvée");
+
+    res.redirect(`/tasks/${task._id}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Erreur lors de la modification de la tâche");
+  }
+});
 
 // Show individual
 router.get("/:id", async (req, res) => {
-  const idReq = req.params.id; // Récupéré depuis l'URL
-  const task = await Tache.find({id:idReq},{ titre: 1, _id: 0 })
-  res.send(`Pas de page mais tu as demander la tache d'id: ${task.id}, nommée ${task.titre}`);
+  try {
+    const idReq = req.params.id; // Récupéré depuis l'URL
+    const task = await Tache.findOne({ _id: idReq });
+
+    if (!task) {
+      return res.status(404).send("Tâche non trouvée");
+    }
+
+    res.render("tasks/detail", { task: task });
+    
+  }
+  catch (err) {
+    console.error(err);
+    res.status(500).send("Erreur serveur");
+  }
 });
 
 module.exports = {

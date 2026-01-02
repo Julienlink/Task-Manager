@@ -1,0 +1,16 @@
+<div class="content">
+    <h1>{{task.titre}}</h1>
+
+    <ul class="list">
+        <li class="item">
+            <p >Description :{{task.description}}</p> 
+        </li>
+
+    <form action="/tasks/{{task.id}}/delete" method="POST" class="inline-form">
+        <button type="submit" class="btn delete-btn">Supprimer</button>
+    </form>
+    <form action="/tasks/{{task.id}}/edit" method="GET" class="inline-form">
+        <button type="submit" class="btn edit-btn">Modifier</button>
+    </form>
+
+</div>
