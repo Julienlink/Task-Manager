@@ -1,11 +1,44 @@
 <div class="content">
-    <h1>{{task.titre}}</h1>
+    <h1>{{task.titre}} - {{task.statut}}</h1>
 
     <ul class="list">
+        <p><strong>écheance:</strong> 
+            {{#if task.echeance}}
+                    {{task.echeance}}
+                {{else}} 
+                    pas d'échéance !
+                {{/if}}</p>
+
+            <p><strong>Priorité:</strong> 
+            {{#if task.priorite}}
+                    {{task.priorite}}
+                {{else}} 
+                    pas de priorité !
+                {{/if}}</p>
+        <h3>Description :</h3>
         <li class="item">
-            <p >Description :{{task.description}}</p> 
+            <p >{{task.description}}</p> 
+        </li>
+        <h3 >Sous-tache :</h3>
+        <li class="item">
+            
+            {{#each task.sousTaches}}
+               <p>{{task.sousTaches}}</p> 
+            {{else}}
+            <p>Aucune sous-taches</p> 
+            {{/each}}
         </li>
 
+        <h3 >Commentaires :</h3>
+        <li class="item">
+            
+            {{#each task.commentaires}}
+               <p>{{task.commentaires}}</p> 
+            {{else}}
+            <p>Aucune commentaires</p> 
+            {{/each}}
+        </li>
+    </ul>
     <form action="/tasks/{{task.id}}/delete" method="POST" class="inline-form">
         <button type="submit" class="btn delete-btn">Supprimer</button>
     </form>
