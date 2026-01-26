@@ -2,43 +2,58 @@
 
     <!-- Formulaire de filtrage -->
     <form method="GET" action="/tasks" class="filter-form">
-    <select name="statut">
-        <option value="tous">Tous les statuts</option>
-        <option value="à faire">À faire</option>
-        <option value="en cours">En cours</option>
-        <option value="terminé">Terminé</option>
-        <option value="annulée">Annulée</option>
-    </select>
-    
-    <select name="priorite">
-        <option value="tous">Toutes priorités</option>
-        <option value="critique">Critique</option>
-        <option value="haute">Haute</option>
-        <option value="moyenne">Moyenne</option>
-        <option value="basse">Basse</option>
-    </select>
-    
-    <select name="echeanceFiltre">
-        <option value="">Toutes échéances</option>
-        <option value="retard">En retard</option>
-        <option value="aujourdhui">Aujourd'hui</option>
-        <option value="semaine">Cette semaine</option>
-    </select>
-    
-    <select name="triPar">
-        <option value="dateCreation">Date création</option>
-        <option value="echeance">Échéance</option>
-        <option value="priorite">Priorité</option>
-        <option value="titre">Titre</option>
-    </select>
-    
-    <select name="ordre">
-        <option value="desc">Décroissant</option>
-        <option value="asc">Croissant</option>
-    </select>
-    
-    <button type="submit">Filtrer</button>
-    <a href="/tasks">Réinitialiser</a>
+        <!-- Filtre Statut -->
+        <select name="statut">
+            <option value="">Tous les statuts</option>
+            <option value="à faire">À faire</option>
+            <option value="en cours">En cours</option>
+            <option value="terminé">Terminé</option>
+            <option value="annulée">Annulée</option>
+        </select>
+        
+        <!-- Filtre Priorité -->
+        <select name="priorite">
+            <option value="">Toutes priorités</option>
+            <option value="critique">Critique</option>
+            <option value="haute">Haute</option>
+            <option value="moyenne">Moyenne</option>
+            <option value="basse">Basse</option>
+        </select>
+
+        <!-- Filtre Catégorie -->
+        <input type="text" name="categorie" placeholder="Categorie (ex: travail)">
+
+        <!-- Filtre Étiquette -->
+        <input type="text" name="etiquette" placeholder="Étiquette (ex: urgent)">
+        
+        <!-- Filtre Date limite - Avant -->
+        <label for="avant">Date limite avant :</label>
+        <input type="date" name="avant" id="avant">
+        
+        <!-- Filtre Date limite - Après -->
+        <label for="apres">Date limite après :</label>
+        <input type="date" name="apres" id="apres">
+        
+        <!-- Recherche texte libre -->
+        <input type="text" name="q" placeholder="Rechercher (titre/description)">
+        
+        <p>Trier par:</p>
+        <!-- Tri -->
+        <select name="triPar">
+            <option value="dateCreation">Date création</option>
+            <option value="echeance">Échéance</option>
+            <option value="priorite">Priorité</option>
+            <option value="titre">Titre</option>
+        </select>
+        
+        <!-- Ordre -->
+        <select name="ordre">
+            <option value="desc">Décroissant</option>
+            <option value="asc">Croissant</option>
+        </select>
+        
+        <button type="submit">Filtrer</button>
+        <a href="/tasks">Réinitialiser</a>
     </form>
 
     <h1>Tous les taches</h1>

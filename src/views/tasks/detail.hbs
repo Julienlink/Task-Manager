@@ -1,6 +1,13 @@
 <div class="content">
     <h1>{{task.titre}} - {{task.statut}}</h1>
 
+    <form action="/tasks/{{task.id}}/delete" method="POST" class="inline-form">
+        <button type="submit" class="btn delete-btn">Supprimer</button>
+    </form>
+    <form action="/tasks/{{task.id}}/edit" method="GET" class="inline-form">
+        <button type="submit" class="btn edit-btn">Modifier</button>
+    </form><br></br>
+
     <ul class="list">
         <p><strong>écheance:</strong> 
             {{#if task.echeance}}
@@ -19,31 +26,54 @@
         <li class="item">
             <p >{{task.description}}</p> 
         </li>
-        <h3 >Sous-tache :</h3>
-        <li class="item">
-            
-            {{#each task.sousTaches}}
-               <p>{{task.sousTaches}}</p> 
+        <h3>Sous-tâches :</h3>
+        <div class="subtasks">
+            {{#if task.sousTaches}}
+                {{#each task.sousTaches}}
+                <div class="subtask-item" style="border-left: 3px solid #007bff; padding: 10px; margin: 10px 0; background-color: #f9f9f9;">
+                    <p><strong>{{this.titre}}</strong></p>
+                    <p>{{this.description}}</p>
+                    <p><em>Statut: {{this.statut}}</em></p>
+                    <form action="/tasks/{{../task._id}}/sous-taches/{{this._id}}/delete" method="POST" class="inline-form">
+                        <button type="submit" class="btn delete-btn" style="padding: 5px 10px;">Supprimer</button>
+                    </form>
+                </div>
+                {{/each}}
             {{else}}
-            <p>Aucune sous-taches</p> 
-            {{/each}}
-        </li>
+                <p>Aucune sous-tâche</p>
+            {{/if}}
+        </div>
 
-        <h3 >Commentaires :</h3>
+        <!-- Formulaire pour ajouter une sous-tâche -->
+        <h4>Ajouter une sous-tâche :</h4>
+        <form action="/tasks/{{task._id}}/sous-taches" method="POST" style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin: 15px 0;">
+            <label>Titre de la sous-tâche</label>
+            <input type="text" name="titre" required style="width: 100%; padding: 8px; margin-bottom: 10px;">
+
+            <label>Description</label>
+            <textarea name="description" style="width: 100%; padding: 8px; margin-bottom: 10px;"></textarea>
+
+            <label>Statut</label>
+            <select name="statut" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+                <option>à faire</option>
+                <option>en cours</option>
+                <option>terminée</option>
+            </select>
+
+            <button type="submit" class="btn" style="padding: 10px 20px; background-color: #28a745;">Ajouter</button>
+        </form>
+
+        <h3>Commentaires :</h3>
         <li class="item">
-            
-            {{#each task.commentaires}}
-               <p>{{task.commentaires}}</p> 
+            {{#if task.commentaires}}
+                {{#each task.commentaires}}
+                   <p>{{this}}</p> 
+                {{/each}}
             {{else}}
-            <p>Aucune commentaires</p> 
-            {{/each}}
+            <p>Aucun commentaire</p> 
+            {{/if}}
         </li>
     </ul>
-    <form action="/tasks/{{task.id}}/delete" method="POST" class="inline-form">
-        <button type="submit" class="btn delete-btn">Supprimer</button>
-    </form>
-    <form action="/tasks/{{task.id}}/edit" method="GET" class="inline-form">
-        <button type="submit" class="btn edit-btn">Modifier</button>
-    </form>
+
 
 </div>

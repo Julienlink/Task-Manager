@@ -19,7 +19,7 @@ const router = express.Router();
 // Show All avec filtrage et tri
 router.get("/", async (req, res) => {
   try {
-    const { statut, priorite, categorie, etiquette, avant, apres, q, triPar, ordre } = req.query;
+    const { statut, priorite, categorie, etiquette, triPar, ordre } = req.query;
     
     // Construire le filtre
     const filtre = {};
@@ -40,23 +40,27 @@ router.get("/", async (req, res) => {
       filtre.etiquettes = { $in: [etiquette] };
     }
     
-    // Filtrage par date limite (avant/apres)
-    if (avant || apres) {
-      filtre.echeance = {};
-      if (avant) {
-        filtre.echeance.$lte = new Date(avant);
+    // Gestion de l'échéance (tâches en retard, aujourd'hui, à venir)
+    if (req.query.echeanceFiltre) {
+      const aujourdHui = new Date();
+      aujourdHui.setHours(0, 0, 0, 0);
+      
+      switch(req.query.echeanceFiltre) {
+        case "retard":
+          filtre.echeance = { $lt: aujourdHui };
+          filtre.statut = { $ne: "terminé" };
+          break;
+        case "aujourdhui":
+          const demain = new Date(aujourdHui);
+          demain.setDate(demain.getDate() + 1);
+          filtre.echeance = { $gte: aujourdHui, $lt: demain };
+          break;
+        case "semaine":
+          const dansUneSemaine = new Date(aujourdHui);
+          dansUneSemaine.setDate(dansUneSemaine.getDate() + 7);
+          filtre.echeance = { $gte: aujourdHui, $lt: dansUneSemaine };
+          break;
       }
-      if (apres) {
-        filtre.echeance.$gte = new Date(apres);
-      }
-    }
-    
-    // Recherche texte libre (titre et description)
-    if (q) {
-      filtre.$or = [
-        { titre: { $regex: q, $options: "i" } },
-        { description: { $regex: q, $options: "i" } }
-      ];
     }
     
     // Construire le tri
@@ -72,6 +76,7 @@ router.get("/", async (req, res) => {
         tri.echeance = ordreTri;
         break;
       case "priorite":
+        // Si vous stockez la priorité comme numérique (1: haute, 2: moyenne, 3: basse)
         tri.priorite = ordreTri;
         break;
       case "titre":
@@ -94,11 +99,12 @@ router.get("/", async (req, res) => {
       })
     };
     
-    res.render("tasks/index", { 
+     res.json({ 
       tasks: tasks,
       filtres: req.query,
       stats: stats
     });
+
     
   } catch (err) {
     console.error(err);
@@ -156,7 +162,7 @@ router.post("/create",async(req,res) =>{
 
 
 // Delete
-router.post("/:id/delete", async(req,res) =>{
+router.delete("/:id/delete", async(req,res) =>{
   try{
     const idCurrent = req.params.id;
     const result = await Tache.findByIdAndDelete(idCurrent);
@@ -168,21 +174,9 @@ router.post("/:id/delete", async(req,res) =>{
   }
 })
 
-// Edit 
-router.get("/:id/edit", async (req, res) => {
-  try {
-    const id = req.params.id;
-    const task = await Tache.findOne({ _id: id });
-    if (!task) return res.status(404).send("Tâche non trouvée");
-    res.render("tasks/edit", { task:task });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Erreur serveur");
-  }
-});
 
 // Edit - submit changes
-router.post("/:id/edit", async (req, res) => {
+router.put("/:id/edit", async (req, res) => {
   try {
     const id = req.params.id;
     const data = req.body;
@@ -266,7 +260,7 @@ router.post("/:id/sous-taches", async (req, res) => {
 });
 
 // Modifier une sous-tâche
-router.post("/:id/sous-taches/:sousTacheId", async (req, res) => {
+router.put("/:id/sous-taches/:sousTacheId", async (req, res) => {
   try {
     const { id, sousTacheId } = req.params;
     const { titre, description, statut } = req.body;
@@ -295,7 +289,7 @@ router.post("/:id/sous-taches/:sousTacheId", async (req, res) => {
 });
 
 // Supprimer une sous-tâche
-router.post("/:id/sous-taches/:sousTacheId/delete", async (req, res) => {
+router.delete("/:id/sous-taches/:sousTacheId/delete", async (req, res) => {
   try {
     const { id, sousTacheId } = req.params;
     

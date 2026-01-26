@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require('cors');
 const hbs = require("hbs");
 const path = require("path");
 require('dotenv').config();
@@ -27,7 +28,8 @@ app.set('views', path.join(__dirname, 'src/views'));
 
 hbs.registerPartials(path.join(__dirname, "/src/views/partials"))
 
-
+// Configuration CORS
+app.use(cors()); // Autorise toutes les origines
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("public"));
