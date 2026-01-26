@@ -100,6 +100,7 @@ router.get("/", async (req, res) => {
     };
     
      res.json({ 
+      success: true,
       tasks: tasks,
       filtres: req.query,
       stats: stats
@@ -108,7 +109,7 @@ router.get("/", async (req, res) => {
     
   } catch (err) {
     console.error(err);
-    res.status(500).send("Erreur serveur");
+    res.status(500).json({ success: false, message: "Erreur serveur", error: err.message });
   }
 });
 
@@ -116,11 +117,7 @@ router.get("/", async (req, res) => {
 
 
 // Create
-router.get("/create", async(req,res) =>{
-  res.render("tasks/create");
-})
-
-router.post("/create",async(req,res) =>{
+router.post("/",async(req,res) =>{
   try {
     const data = req.body; 
     // Si dateCreation est vide → mettre la date actuelle
@@ -150,35 +147,45 @@ router.post("/create",async(req,res) =>{
 
     await nouvelleTache.save();
 
-    // Redirection ou confirmation
-    res.redirect("/tasks");
+    res.status(201).json({ 
+      success: true,
+      message: "Tâche créée avec succès",
+      task: nouvelleTache
+    });
 
   } catch (err) {
     console.error(err);
-    res.status(500).send("Erreur lors de la création de la tâche");
+    res.status(500).json({ success: false, message: "Erreur lors de la création de la tâche", error: err.message });
   }
 })
 
 
 
 // Delete
-router.delete("/:id/delete", async(req,res) =>{
+router.delete("/:id", async(req,res) =>{
   try{
     const idCurrent = req.params.id;
     const result = await Tache.findByIdAndDelete(idCurrent);
-     res.status(201).redirect("/tasks");
+    if (!result) return res.status(404).json({ success: false, message: "Tâche non trouvée" });
+    res.json({ success: true, message: "Tâche supprimée avec succès", task: result });
   }
   catch(err){
     console.error(err);
-    res.status(500).send("Erreur serveur");
+    res.status(500).json({ success: false, message: "Erreur serveur", error: err.message });
   }
 })
 
 
 // Edit - submit changes
-router.put("/:id/edit", async (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const id = req.params.id;
+    
+    // Validation stricte de l'ID
+    if (!id || id === 'null' || id === 'undefined') {
+      return res.status(400).json({ success: false, message: "ID de tâche invalide" });
+    }
+    
     const data = req.body;
 
     const update = {
@@ -200,12 +207,12 @@ router.put("/:id/edit", async (req, res) => {
     Object.keys(update).forEach(k => update[k] === undefined && delete update[k]);
 
     const task = await Tache.findByIdAndUpdate(id, update, { new: true });
-    if (!task) return res.status(404).send("Tâche non trouvée");
+    if (!task) return res.status(404).json({ success: false, message: "Tâche non trouvée" });
 
-    res.redirect(`/tasks/${task._id}`);
+    res.json({ success: true, message: "Tâche modifiée avec succès", task: task });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Erreur lors de la modification de la tâche");
+    res.status(500).json({ success: false, message: "Erreur lors de la modification de la tâche", error: err.message });
   }
 });
 
@@ -216,15 +223,15 @@ router.get("/:id", async (req, res) => {
     const task = await Tache.findOne({ _id: idReq });
 
     if (!task) {
-      return res.status(404).send("Tâche non trouvée");
+      return res.status(404).json({ success: false, message: "Tâche non trouvée" });
     }
 
-    res.render("tasks/detail", { task: task });
+    res.json({ success: true, task: task });
     
   }
   catch (err) {
     console.error(err);
-    res.status(500).send("Erreur serveur");
+    res.status(500).json({ success: false, message: "Erreur serveur", error: err.message });
   }
 });
 
@@ -249,13 +256,13 @@ router.post("/:id/sous-taches", async (req, res) => {
       { new: true }
     );
     
-    if (!task) return res.status(404).send("Tâche non trouvée");
+    if (!task) return res.status(404).json({ success: false, message: "Tâche non trouvée" });
     
-    res.redirect(`/tasks/${idTache}`);
+    res.status(201).json({ success: true, message: "Sous-tâche ajoutée avec succès", task: task });
     
   } catch (err) {
     console.error(err);
-    res.status(500).send("Erreur lors de l'ajout de la sous-tâche");
+    res.status(500).json({ success: false, message: "Erreur lors de l'ajout de la sous-tâche", error: err.message });
   }
 });
 
@@ -278,18 +285,18 @@ router.put("/:id/sous-taches/:sousTacheId", async (req, res) => {
       { new: true }
     );
     
-    if (!task) return res.status(404).send("Sous-tâche non trouvée");
+    if (!task) return res.status(404).json({ success: false, message: "Sous-tâche non trouvée" });
     
-    res.redirect(`/tasks/${id}`);
+    res.json({ success: true, message: "Sous-tâche modifiée avec succès", task: task });
     
   } catch (err) {
     console.error(err);
-    res.status(500).send("Erreur lors de la modification de la sous-tâche");
+    res.status(500).json({ success: false, message: "Erreur lors de la modification de la sous-tâche", error: err.message });
   }
 });
 
 // Supprimer une sous-tâche
-router.delete("/:id/sous-taches/:sousTacheId/delete", async (req, res) => {
+router.delete("/:id/sous-taches/:sousTacheId", async (req, res) => {
   try {
     const { id, sousTacheId } = req.params;
     
@@ -299,13 +306,13 @@ router.delete("/:id/sous-taches/:sousTacheId/delete", async (req, res) => {
       { new: true }
     );
     
-    if (!task) return res.status(404).send("Tâche non trouvée");
+    if (!task) return res.status(404).json({ success: false, message: "Tâche non trouvée" });
     
-    res.redirect(`/tasks/${id}`);
+    res.json({ success: true, message: "Sous-tâche supprimée avec succès", task: task });
     
   } catch (err) {
     console.error(err);
-    res.status(500).send("Erreur lors de la suppression de la sous-tâche");
+    res.status(500).json({ success: false, message: "Erreur lors de la suppression de la sous-tâche", error: err.message });
   }
 });
 

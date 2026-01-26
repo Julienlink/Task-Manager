@@ -4,239 +4,184 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestionnaire de Tâches</title>
-    <script src="./script.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 30px;
-            text-align: center;
-            font-size: 2.5em;
-        }
-
-        .task-form {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-
-        #taskInput {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        #taskInput:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .btn {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-add {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-add:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-edit {
-            background: #4caf50;
-            color: white;
-            padding: 8px 15px;
-            font-size: 14px;
-        }
-
-        .btn-edit:hover {
-            background: #45a049;
-        }
-
-        .btn-delete {
-            background: #f44336;
-            color: white;
-            padding: 8px 15px;
-            font-size: 14px;
-        }
-
-        .btn-delete:hover {
-            background: #da190b;
-        }
-
-        .btn-cancel {
-            background: #9e9e9e;
-            color: white;
-            padding: 8px 15px;
-            font-size: 14px;
-        }
-
-        .btn-cancel:hover {
-            background: #757575;
-        }
-
-        #taskList {
-            list-style: none;
-        }
-
-        .task-item {
-            background: #f9f9f9;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s;
-            border-left: 4px solid #667eea;
-        }
-
-        .task-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .task-item.completed {
-            opacity: 0.6;
-            border-left-color: #4caf50;
-        }
-
-        .task-content {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .task-checkbox {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .task-text {
-            font-size: 16px;
-            color: #333;
-        }
-
-        .task-item.completed .task-text {
-            text-decoration: line-through;
-            color: #999;
-        }
-
-        .task-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .edit-mode {
-            background: #fff3cd;
-            border-left-color: #ffc107;
-        }
-
-        .edit-input {
-            flex: 1;
-            padding: 10px;
-            border: 2px solid #ffc107;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #667eea;
-            font-size: 18px;
-        }
-
-        .error {
-            background: #ffebee;
-            color: #c62828;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border-left: 4px solid #c62828;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-            font-size: 18px;
-        }
-
-        .api-status {
-            background: #e3f2fd;
-            padding: 10px 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            color: #1976d2;
-            text-align: center;
-        }
-    </style>
+    <link href="./style.css" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h1>📝 Mes Tâches</h1>
+        <h1>📝 Gestionnaire de Tâches</h1>
         
         <div class="api-status" id="apiStatus">
-            ⚠️ API URL non configurée - Voir console pour instructions
+            ⚠️ Chargement de l'API...
         </div>
 
         <div id="errorMessage"></div>
 
-        <div class="task-form">
-            <input 
-                type="text" 
-                id="taskInput" 
-                placeholder="Ajouter une nouvelle tâche..."
-                autocomplete="off"
-            >
-            <button class="btn btn-add" onclick="addTask()">Ajouter</button>
+        <!-- Formulaire d'ajout simple -->
+        <div class="quick-add-form">
+            <div class="task-form">
+                <input 
+                    type="text" 
+                    id="taskInput" 
+                    placeholder="Ajouter une nouvelle tâche..."
+                    autocomplete="off"
+                >
+                <button class="btn btn-add" onclick="toggleAdvancedForm()">⚙️ Avancé</button>
+                <button class="btn btn-add" onclick="addTaskQuick()">Ajouter</button>
+            </div>
+        </div>
+
+        <!-- Formulaire complet -->
+        <div id="advancedForm" class="advanced-form" style="display: none;">
+            <h3>Ajouter une tâche complète</h3>
+            <form onsubmit="addTaskAdvanced(event)">
+                <div class="form-group">
+                    <label for="formTitre">Titre *</label>
+                    <input type="text" id="formTitre" required placeholder="Titre de la tâche">
+                </div>
+
+                <div class="form-group">
+                    <label for="formDescription">Description</label>
+                    <textarea id="formDescription" placeholder="Description détaillée..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="formStatut">Statut</label>
+                        <select id="formStatut">
+                            <option value="à faire">À faire</option>
+                            <option value="en cours">En cours</option>
+                            <option value="terminé">Terminé</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="formPriorite">Priorité</label>
+                        <select id="formPriorite">
+                            <option value="basse">🟢 Basse</option>
+                            <option value="moyen" selected>🟡 Moyen</option>
+                            <option value="haute">🔴 Haute</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="formCategorie">Catégorie</label>
+                        <input type="text" id="formCategorie" placeholder="Ex: Travail, Personnel...">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="formEcheance">Date d'échéance</label>
+                        <input type="date" id="formEcheance">
+                    </div>
+                </div>
+
+                <fieldset class="author-section">
+                    <legend>Auteur</legend>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="formAuteurNom">Nom</label>
+                            <input type="text" id="formAuteurNom" placeholder="Nom">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="formAuteurPrenom">Prénom</label>
+                            <input type="text" id="formAuteurPrenom" placeholder="Prénom">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="formAuteurEmail">Email</label>
+                        <input type="email" id="formAuteurEmail" placeholder="email@example.com">
+                    </div>
+                </fieldset>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-add" id="submitBtn">✅ Ajouter la tâche</button>
+                    <button type="button" class="btn btn-cancel" onclick="cancelForm()">Annuler</button>
+                </div>
+            </form>
         </div>
 
         <div id="loading" class="loading" style="display: none;">
-            Chargement des tâches...
+            ⏳ Chargement des tâches...
         </div>
 
         <ul id="taskList"></ul>
     </div>
 
-    
+    <!-- Modale de détails -->
+    <div id="taskModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle"></h2>
+                <button class="btn-close" onclick="closeTaskModal()">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Description -->
+                <div class="detail-section">
+                    <h3>Description</h3>
+                    <p id="modalDescription" class="detail-text"></p>
+                </div>
+
+                <!-- Statut et Priorité -->
+                <div class="detail-row">
+                    <div class="detail-section">
+                        <h3>Statut</h3>
+                        <p id="modalStatut" class="detail-badge"></p>
+                    </div>
+                    <div class="detail-section">
+                        <h3>Priorité</h3>
+                        <p id="modalPriorite" class="detail-badge"></p>
+                    </div>
+                </div>
+
+                <!-- Catégorie et Échéance -->
+                <div class="detail-row">
+                    <div class="detail-section">
+                        <h3>Catégorie</h3>
+                        <p id="modalCategorie" class="detail-text"></p>
+                    </div>
+                    <div class="detail-section">
+                        <h3>Échéance</h3>
+                        <p id="modalEcheance" class="detail-text"></p>
+                    </div>
+                </div>
+
+                <!-- Auteur -->
+                <div class="detail-section">
+                    <h3>Auteur</h3>
+                    <div id="modalAuteur" class="detail-text"></div>
+                </div>
+
+                <!-- Dates de création/modification -->
+                <div class="detail-row">
+                    <div class="detail-section">
+                        <h3>Créée le</h3>
+                        <p id="modalDateCreation" class="detail-text"></p>
+                    </div>
+                    <div class="detail-section">
+                        <h3>Modifiée le</h3>
+                        <p id="modalDateModification" class="detail-text"></p>
+                    </div>
+                </div>
+
+                <!-- Sous-tâches -->
+                <div class="detail-section" id="sousTaskesSection" style="display: none;">
+                    <h3>Sous-tâches</h3>
+                    <ul id="modalSousTaches" class="sous-taches-list"></ul>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-edit" onclick="editCurrentTask()">✏️ Éditer</button>
+                <button class="btn btn-delete" onclick="deleteCurrentTask()">🗑️ Supprimer</button>
+                <button class="btn btn-cancel" onclick="closeTaskModal()">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./script.js"></script>
 </body>
 </html>
