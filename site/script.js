@@ -251,6 +251,14 @@ async function deleteTask(id) {
         if (!response.ok) throw new Error('Erreur lors de la suppression');
         
         tasks = tasks.filter(t => t._id !== id);
+        
+        // Fermer la modale et réinitialiser
+        if (currentTaskId === id) {
+            closeTaskModal();
+            isEditMode = false;
+            currentTaskId = null;
+        }
+        
         renderTasks();
         clearError();
         showSuccess('Tâche supprimée!');
@@ -393,21 +401,10 @@ function openTaskModal(taskId) {
     }
     
     // Sous-tâches
-    const sousTachesSection = document.getElementById('sousTaskesSection');
-    const sousTachesList = document.getElementById('modalSousTaches');
+    renderSubtasks(task);
     
-    if (task.sousTaches && task.sousTaches.length > 0) {
-        sousTachesSection.style.display = 'block';
-        sousTachesList.innerHTML = task.sousTaches.map(st => `
-            <li class="sous-tache-item ${st.statut === 'terminé' ? 'completed' : ''}">
-                <input type="checkbox" ${st.statut === 'terminé' ? 'checked' : ''} disabled>
-                <span class="sous-tache-titre">${st.titre}</span>
-                <span style="color: var(--text-light); font-size: 0.85rem;">${st.statut}</span>
-            </li>
-        `).join('');
-    } else {
-        sousTachesSection.style.display = 'none';
-    }
+    // Commentaires
+    renderComments(task);
     
     // Afficher la modale
     document.getElementById('taskModal').style.display = 'flex';
@@ -416,6 +413,9 @@ function openTaskModal(taskId) {
 // Fermer la modale
 function closeTaskModal() {
     document.getElementById('taskModal').style.display = 'none';
+    document.getElementById('advancedForm').style.display = 'none';
+    resetAdvancedForm();
+    isEditMode = false;
     currentTaskId = null;
 }
 
@@ -483,7 +483,7 @@ async function updateTask(taskId) {
 // Supprimer la tâche actuelle (depuis la modale)
 async function deleteCurrentTask() {
     if (!currentTaskId) return;
-    deleteTask(currentTaskId);
+    await deleteTask(currentTaskId);
 }
 
 // Fermer la modale au clic en dehors
@@ -491,5 +491,229 @@ window.onclick = function(event) {
     const modal = document.getElementById('taskModal');
     if (event.target === modal) {
         closeTaskModal();
+    }
+}
+
+// ===== GESTION DES SOUS-TÂCHES =====
+async function addSubtask() {
+    if (!currentTaskId) {
+        showError('Aucune tâche sélectionnée');
+        return;
+    }
+    
+    const titre = document.getElementById('newSubtaskInput').value.trim();
+    if (!titre) {
+        showError('Veuillez entrer un titre pour la sous-tâche');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/${currentTaskId}/sous-taches`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                titre: titre,
+                description: '',
+                statut: 'à faire'
+            })
+        });
+        
+        if (!response.ok) throw new Error('Erreur lors de l\'ajout');
+        const data = await response.json();
+        
+        if (data.success && data.task) {
+            const index = tasks.findIndex(t => t._id === currentTaskId);
+            if (index !== -1) {
+                tasks[index] = data.task;
+            }
+            document.getElementById('newSubtaskInput').value = '';
+            renderSubtasks(data.task);
+            showSuccess('Sous-tâche ajoutée!');
+        }
+    } catch (error) {
+        showError('Impossible d\'ajouter la sous-tâche');
+        console.error('Erreur:', error);
+    }
+}
+
+async function toggleSubtask(subtaskId) {
+    if (!currentTaskId) return;
+    
+    const task = tasks.find(t => t._id === currentTaskId);
+    if (!task) return;
+    
+    const subtask = task.sousTaches?.find(st => st._id === subtaskId);
+    if (!subtask) return;
+    
+    const newStatus = subtask.statut === 'à faire' ? 'terminé' : 'à faire';
+    
+    try {
+        const response = await fetch(`${API_URL}/${currentTaskId}/sous-taches/${subtaskId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                titre: subtask.titre,
+                description: subtask.description || '',
+                statut: newStatus
+            })
+        });
+        
+        if (!response.ok) throw new Error('Erreur');
+        const data = await response.json();
+        
+        if (data.success && data.task) {
+            const index = tasks.findIndex(t => t._id === currentTaskId);
+            if (index !== -1) {
+                tasks[index] = data.task;
+            }
+            renderSubtasks(data.task);
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+async function deleteSubtask(subtaskId) {
+    if (!currentTaskId) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/${currentTaskId}/sous-taches/${subtaskId}`, {
+            method: 'DELETE'
+        });
+        
+        if (!response.ok) throw new Error('Erreur');
+        const data = await response.json();
+        
+        if (data.success && data.task) {
+            const index = tasks.findIndex(t => t._id === currentTaskId);
+            if (index !== -1) {
+                tasks[index] = data.task;
+            }
+            renderSubtasks(data.task);
+            showSuccess('Sous-tâche supprimée!');
+        }
+    } catch (error) {
+        showError('Impossible de supprimer la sous-tâche');
+        console.error('Erreur:', error);
+    }
+}
+
+function renderSubtasks(task) {
+    const section = document.getElementById('sousTaskesSection');
+    const list = document.getElementById('modalSousTaches');
+    
+    if (task.sousTaches && task.sousTaches.length > 0) {
+        section.style.display = 'block';
+        list.innerHTML = task.sousTaches.map(st => `
+            <li class="sous-tache-item ${st.statut === 'terminé' ? 'completed' : ''}">
+                <input 
+                    type="checkbox" 
+                    ${st.statut === 'terminé' ? 'checked' : ''}
+                    onchange="toggleSubtask('${st._id}')"
+                >
+                <span class="sous-tache-titre">${st.titre}</span>
+                <button class="btn-small btn-delete" onclick="deleteSubtask('${st._id}')">🗑️</button>
+            </li>
+        `).join('');
+    } else {
+        section.style.display = 'none';
+    }
+}
+
+// ===== GESTION DES COMMENTAIRES =====
+async function addComment() {
+    if (!currentTaskId) {
+        showError('Aucune tâche sélectionnée');
+        return;
+    }
+    
+    const texte = document.getElementById('newCommentInput').value.trim();
+    if (!texte) {
+        showError('Veuillez entrer un commentaire');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/${currentTaskId}/commentaires`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                texte: texte,
+                auteur: 'Utilisateur'
+            })
+        });
+        
+        if (!response.ok) throw new Error('Erreur lors de l\'ajout');
+        const data = await response.json();
+        
+        if (data.success && data.task) {
+            const index = tasks.findIndex(t => t._id === currentTaskId);
+            if (index !== -1) {
+                tasks[index] = data.task;
+            }
+            document.getElementById('newCommentInput').value = '';
+            renderComments(data.task);
+            showSuccess('Commentaire ajouté!');
+        }
+    } catch (error) {
+        showError('Impossible d\'ajouter le commentaire');
+        console.error('Erreur:', error);
+    }
+}
+
+async function deleteComment(commentId) {
+    if (!currentTaskId) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/${currentTaskId}/commentaires/${commentId}`, {
+            method: 'DELETE'
+        });
+        
+        if (!response.ok) throw new Error('Erreur');
+        const data = await response.json();
+        
+        if (data.success && data.task) {
+            const index = tasks.findIndex(t => t._id === currentTaskId);
+            if (index !== -1) {
+                tasks[index] = data.task;
+            }
+            renderComments(data.task);
+            showSuccess('Commentaire supprimé!');
+        }
+    } catch (error) {
+        showError('Impossible de supprimer le commentaire');
+        console.error('Erreur:', error);
+    }
+}
+
+function renderComments(task) {
+    const list = document.getElementById('modalCommentaires');
+    
+    if (task.commentaires && task.commentaires.length > 0) {
+        list.innerHTML = task.commentaires.map(comment => {
+            const date = new Date(comment.dateCreation);
+            const dateStr = date.toLocaleDateString('fr-FR', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            return `
+                <li class="comment-item">
+                    <div class="comment-header">
+                        <div>
+                            <span class="comment-author">${comment.auteur || 'Anonyme'}</span>
+                            <span class="comment-date">${dateStr}</span>
+                        </div>
+                        <button class="btn-small btn-delete" onclick="deleteComment('${comment._id}')">🗑️</button>
+                    </div>
+                    <div class="comment-text">${comment.texte}</div>
+                </li>
+            `;
+        }).join('');
+    } else {
+        list.innerHTML = '<p style="color: var(--text-light); font-size: 0.9rem;">Aucun commentaire pour le moment.</p>';
     }
 }

@@ -853,3 +853,129 @@ h1 {
         width: 100%;
     }
 }
+
+/* ===== SOUS-TÂCHES ET COMMENTAIRES ===== */
+.sous-taches-list, .comments-list {
+    list-style: none;
+    margin: 12px 0;
+}
+
+.sous-tache-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background-color: var(--light-bg);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    border-left: 3px solid var(--primary-color);
+}
+
+.sous-tache-item.completed {
+    opacity: 0.6;
+    background-color: #d5f4e6;
+    border-left-color: var(--success-color);
+}
+
+.sous-tache-item input[type="checkbox"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}
+
+.sous-tache-titre {
+    flex: 1;
+    font-weight: 500;
+}
+
+.sous-tache-item.completed .sous-tache-titre {
+    text-decoration: line-through;
+    color: var(--text-light);
+}
+
+.comment-item {
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--warning-color);
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.comment-author {
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 0.9rem;
+}
+
+.comment-date {
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+.comment-text {
+    color: var(--text-dark);
+    word-wrap: break-word;
+    margin-bottom: 6px;
+}
+
+.comment-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-small:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+}
+
+.btn-small.btn-delete {
+    background-color: var(--danger-color);
+}
+
+.btn-small.btn-delete:hover {
+    background-color: #c0392b;
+}
+
+.add-subtask-form, .add-comment-form {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.add-subtask-form input,
+.add-comment-form textarea {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+
+.add-subtask-form input {
+    flex: 1;
+}
+
+.add-comment-form textarea {
+    flex: 1;
+    resize: vertical;
+    border: 1px solid var(--border-color);
+}

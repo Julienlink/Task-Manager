@@ -316,6 +316,84 @@ router.delete("/:id/sous-taches/:sousTacheId", async (req, res) => {
   }
 });
 
+// Ajouter un commentaire
+router.post("/:id/commentaires", async (req, res) => {
+  try {
+    const idTache = req.params.id;
+    const { texte, auteur } = req.body;
+    
+    const newComment = {
+      _id: new mongoose.Types.ObjectId(),
+      texte: texte,
+      auteur: auteur || "Anonyme",
+      dateCreation: new Date(),
+      dateModification: new Date()
+    };
+    
+    const task = await Tache.findByIdAndUpdate(
+      idTache,
+      { $push: { commentaires: newComment } },
+      { new: true }
+    );
+    
+    if (!task) return res.status(404).json({ success: false, message: "Tâche non trouvée" });
+    
+    res.status(201).json({ success: true, message: "Commentaire ajouté avec succès", task: task });
+    
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Erreur lors de l'ajout du commentaire", error: err.message });
+  }
+});
+
+// Modifier un commentaire
+router.put("/:id/commentaires/:commentaireId", async (req, res) => {
+  try {
+    const { id, commentaireId } = req.params;
+    const { texte } = req.body;
+    
+    const task = await Tache.findOneAndUpdate(
+      { _id: id, "commentaires._id": commentaireId },
+      {
+        $set: {
+          "commentaires.$.texte": texte,
+          "commentaires.$.dateModification": new Date()
+        }
+      },
+      { new: true }
+    );
+    
+    if (!task) return res.status(404).json({ success: false, message: "Commentaire non trouvé" });
+    
+    res.json({ success: true, message: "Commentaire modifié avec succès", task: task });
+    
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Erreur lors de la modification du commentaire", error: err.message });
+  }
+});
+
+// Supprimer un commentaire
+router.delete("/:id/commentaires/:commentaireId", async (req, res) => {
+  try {
+    const { id, commentaireId } = req.params;
+    
+    const task = await Tache.findByIdAndUpdate(
+      id,
+      { $pull: { commentaires: { _id: commentaireId } } },
+      { new: true }
+    );
+    
+    if (!task) return res.status(404).json({ success: false, message: "Tâche non trouvée" });
+    
+    res.json({ success: true, message: "Commentaire supprimé avec succès", task: task });
+    
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Erreur lors de la suppression du commentaire", error: err.message });
+  }
+});
+
 module.exports = {
     router,
 }

@@ -171,6 +171,20 @@
                 <div class="detail-section" id="sousTaskesSection" style="display: none;">
                     <h3>Sous-tâches</h3>
                     <ul id="modalSousTaches" class="sous-taches-list"></ul>
+                    <div class="add-subtask-form" style="margin-top: 12px;">
+                        <input type="text" id="newSubtaskInput" placeholder="Ajouter une sous-tâche..." style="margin-right: 6px;">
+                        <button class="btn btn-small" onclick="addSubtask()">➕</button>
+                    </div>
+                </div>
+
+                <!-- Commentaires -->
+                <div class="detail-section" id="commentairesSection">
+                    <h3>Commentaires</h3>
+                    <ul id="modalCommentaires" class="comments-list"></ul>
+                    <div class="add-comment-form" style="margin-top: 12px;">
+                        <textarea id="newCommentInput" placeholder="Ajouter un commentaire..." style="width: 100%; min-height: 60px; margin-bottom: 6px;"></textarea>
+                        <button class="btn btn-small" onclick="addComment()">💬 Commenter</button>
+                    </div>
                 </div>
             </div>
 
