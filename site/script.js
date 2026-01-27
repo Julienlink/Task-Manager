@@ -421,8 +421,14 @@ function closeTaskModal() {
 
 // Éditer la tâche depuis la modale
 function editCurrentTask() {
+    if (!currentTaskId) {
+        showError('Aucune tâche sélectionnée');
+        return;
+    }
+    // Juste fermer la modale sans réinitialiser les variables
+    document.getElementById('taskModal').style.display = 'none';
+    // Afficher le formulaire d'édition APRÈS
     editTask(currentTaskId);
-    closeTaskModal();
 }
 
 // Mettre à jour une tâche
@@ -602,12 +608,15 @@ function renderSubtasks(task) {
     const section = document.getElementById('sousTaskesSection');
     const list = document.getElementById('modalSousTaches');
     
+    // Toujours afficher la section
+    section.style.display = 'block';
+    
     if (task.sousTaches && task.sousTaches.length > 0) {
-        section.style.display = 'block';
         list.innerHTML = task.sousTaches.map(st => `
             <li class="sous-tache-item ${st.statut === 'terminé' ? 'completed' : ''}">
                 <input 
                     type="checkbox" 
+                    class="subtask-checkbox"
                     ${st.statut === 'terminé' ? 'checked' : ''}
                     onchange="toggleSubtask('${st._id}')"
                 >
@@ -616,7 +625,7 @@ function renderSubtasks(task) {
             </li>
         `).join('');
     } else {
-        section.style.display = 'none';
+        list.innerHTML = '<li class="empty-subtasks">📋 Aucune sous-tâche pour le moment</li>';
     }
 }
 
