@@ -5,3 +5,5 @@ Install dependencies
 ```npm install```
 
 Create .env at project's root with: ```MONGO_URI:user```
+
+Launch project with: ```npm run start```
