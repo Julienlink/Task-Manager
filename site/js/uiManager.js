@@ -91,6 +91,7 @@ function renderTasks() {
                         class="task-checkbox" 
                         ${isCompleted ? 'checked' : ''}
                         onchange="toggleTask('${task._id}')"
+                        onclick="event.stopPropagation()"
                     >
                     <span class="task-title">${task.titre}</span>
                     <span class="task-priority">${priorityEmoji}</span>
