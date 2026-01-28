@@ -96,6 +96,11 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label for="formTags">Étiquettes (séparées par des virgules)</label>
+                    <input type="text" id="formTags" placeholder="Ex: urgent, important, bug...">
+                </div>
+
                 <fieldset class="author-section">
                     <legend>Auteur</legend>
                     <div class="form-row">
@@ -165,6 +170,16 @@
                         type="text" 
                         id="filterCategorie" 
                         placeholder="Ex: Travail..."
+                        onkeyup="applyFilters()"
+                    >
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterTags">Étiquettes</label>
+                    <input 
+                        type="text" 
+                        id="filterTags" 
+                        placeholder="Ex: urgent..."
                         onkeyup="applyFilters()"
                     >
                 </div>
@@ -245,6 +260,12 @@
                         <h3>Échéance</h3>
                         <p id="modalEcheance" class="detail-text"></p>
                     </div>
+                </div>
+
+                <!-- Étiquettes -->
+                <div class="detail-section" id="tagsSection" style="display: none;">
+                    <h3>Étiquettes</h3>
+                    <div id="modalTags" class="tags-container"></div>
                 </div>
 
                 <!-- Auteur -->

@@ -34,6 +34,7 @@ const createTask = async (req, res) => {
         email: data.auteurEmail
       },
       categorie: data.categorie || "",
+      tags: Array.isArray(data.tags) ? data.tags : (data.tags ? data.tags.split(',').map(t => t.trim()).filter(t => t) : []),
       sousTaches: [],
       commentaires: [],
       historiqueModifications: []

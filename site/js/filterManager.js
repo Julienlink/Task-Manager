@@ -5,6 +5,7 @@ function getFilterValues() {
         statut: document.getElementById('filterStatut').value,
         priorite: document.getElementById('filterPriorite').value,
         categorie: document.getElementById('filterCategorie').value.trim(),
+        tags: document.getElementById('filterTags').value.trim(),
         echeanceFiltre: document.getElementById('filterEcheance').value,
         triPar: document.getElementById('sortBy').value,
         ordre: document.getElementById('sortOrder').value
@@ -54,6 +55,15 @@ async function applyFilters() {
             });
         }
         
+        // Appliquer le filtre par tags
+        if (filters.tags) {
+            const filterTagsLower = filters.tags.toLowerCase();
+            tasks = tasks.filter(task => {
+                if (!Array.isArray(task.tags)) return false;
+                return task.tags.some(tag => tag.toLowerCase().includes(filterTagsLower));
+            });
+        }
+        
         renderTasks();
         updateStats(data.stats || {});
         updateApiStatus('✅ Filtres appliqués');
@@ -73,6 +83,7 @@ function resetFilters() {
     document.getElementById('filterStatut').value = '';
     document.getElementById('filterPriorite').value = '';
     document.getElementById('filterCategorie').value = '';
+    document.getElementById('filterTags').value = '';
     document.getElementById('filterEcheance').value = '';
     document.getElementById('sortBy').value = 'dateCreation';
     document.getElementById('sortOrder').value = 'desc';

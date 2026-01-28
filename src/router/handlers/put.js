@@ -34,7 +34,8 @@ const updateTask = async (req, res) => {
         prenom: data.auteurPrenom,
         email: data.auteurEmail
       },
-      categorie: data.categorie || ""
+      categorie: data.categorie || "",
+      tags: Array.isArray(data.tags) ? data.tags : (data.tags ? data.tags.split(',').map(t => t.trim()).filter(t => t) : [])
     };
 
     // Remove undefined keys so they don't overwrite existing values

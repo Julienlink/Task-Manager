@@ -33,6 +33,7 @@ function resetAdvancedForm() {
     document.getElementById('formAuteurNom').value = '';
     document.getElementById('formAuteurPrenom').value = '';
     document.getElementById('formAuteurEmail').value = '';
+    document.getElementById('formTags').value = '';
 }
 
 // Activer le mode édition
@@ -61,6 +62,13 @@ function editTask(id) {
     document.getElementById('formAuteurNom').value = task.auteur?.nom || '';
     document.getElementById('formAuteurPrenom').value = task.auteur?.prenom || '';
     document.getElementById('formAuteurEmail').value = task.auteur?.email || '';
+    
+    // Remplir les tags
+    if (Array.isArray(task.tags) && task.tags.length > 0) {
+        document.getElementById('formTags').value = task.tags.join(', ');
+    } else {
+        document.getElementById('formTags').value = '';
+    }
     
     // Afficher formulaire et changer le titre et bouton
     document.getElementById('advancedForm').style.display = 'block';
@@ -101,6 +109,7 @@ function renderTasks() {
                 <div class="task-meta">
                     <span class="task-category">${task.categorie || 'Sans catégorie'}</span>
                     ${task.echeance ? `<span class="task-deadline">📅 ${new Date(task.echeance).toLocaleDateString('fr-FR')}</span>` : ''}
+                    ${Array.isArray(task.tags) && task.tags.length > 0 ? `<div class="task-tags">${task.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>` : ''}
                 </div>
                 <div class="task-actions">
                     <button class="btn btn-edit" onclick="editTask('${task._id}')">✏️</button>
@@ -143,6 +152,15 @@ function openTaskModal(taskId) {
         document.getElementById('modalEcheance').textContent = `📅 ${date.toLocaleDateString('fr-FR')}`;
     } else {
         document.getElementById('modalEcheance').textContent = '—';
+    }
+    
+    // Tags
+    const tagsSection = document.getElementById('tagsSection');
+    if (Array.isArray(task.tags) && task.tags.length > 0) {
+        tagsSection.style.display = 'block';
+        document.getElementById('modalTags').innerHTML = task.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+    } else {
+        tagsSection.style.display = 'none';
     }
     
     // Auteur
