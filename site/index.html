@@ -4,7 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestionnaire de Tâches</title>
-    <link href="./style.css" rel="stylesheet">
+    <!-- CSS Modular Import -->
+    <link href="./css/variables.css" rel="stylesheet">
+    <link href="./css/layout.css" rel="stylesheet">
+    <link href="./css/alerts.css" rel="stylesheet">
+    <link href="./css/buttons.css" rel="stylesheet">
+    <link href="./css/forms.css" rel="stylesheet">
+    <link href="./css/filters.css" rel="stylesheet">
+    <link href="./css/tasks.css" rel="stylesheet">
+    <link href="./css/modal.css" rel="stylesheet">
+    <link href="./css/utilities.css" rel="stylesheet">
+
+
+        <!-- Scripts modules -->
+    <script src="./js/config.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/filterManager.js"></script>
+    <script src="./js/taskManager.js"></script>
+    <script src="./js/subtaskManager.js"></script>
+    <script src="./js/commentManager.js"></script>
+    <script src="./js/uiManager.js"></script>
+    <script src="./js/main.js"></script>
 </head>
 <body>
     <div class="container">
@@ -107,6 +127,84 @@
             ⏳ Chargement des tâches...
         </div>
 
+        <!-- Section de filtrage et recherche -->
+        <div class="filter-section">
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="🔍 Rechercher une tâche..."
+                    onkeyup="applyFilters()"
+                >
+            </div>
+
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label for="filterStatut">Statut</label>
+                    <select id="filterStatut" onchange="applyFilters()">
+                        <option value="">Tous</option>
+                        <option value="à faire">À faire</option>
+                        <option value="en cours">En cours</option>
+                        <option value="terminé">Terminé</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterPriorite">Priorité</label>
+                    <select id="filterPriorite" onchange="applyFilters()">
+                        <option value="">Tous</option>
+                        <option value="haute">🔴 Haute</option>
+                        <option value="moyen">🟡 Moyen</option>
+                        <option value="basse">🟢 Basse</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterCategorie">Catégorie</label>
+                    <input 
+                        type="text" 
+                        id="filterCategorie" 
+                        placeholder="Ex: Travail..."
+                        onkeyup="applyFilters()"
+                    >
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterEcheance">Échéance</label>
+                    <select id="filterEcheance" onchange="applyFilters()">
+                        <option value="">Tous</option>
+                        <option value="retard">En retard</option>
+                        <option value="aujourdhui">Aujourd'hui</option>
+                        <option value="semaine">Cette semaine</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="sort-section">
+                <div class="sort-group">
+                    <label for="sortBy">Trier par</label>
+                    <select id="sortBy" onchange="applyFilters()">
+                        <option value="dateCreation">Date de création</option>
+                        <option value="echeance">Échéance</option>
+                        <option value="priorite">Priorité</option>
+                        <option value="titre">Titre</option>
+                    </select>
+                </div>
+
+                <div class="sort-group">
+                    <label for="sortOrder">Ordre</label>
+                    <select id="sortOrder" onchange="applyFilters()">
+                        <option value="desc">Décroissant</option>
+                        <option value="asc">Croissant</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-reset" onclick="resetFilters()">🔄 Réinitialiser</button>
+            </div>
+
+            <div class="stats-section" id="statsSection"></div>
+        </div>
+
         <ul id="taskList"></ul>
     </div>
 
@@ -196,6 +294,6 @@
         </div>
     </div>
 
-    <script src="./script.js"></script>
+
 </body>
 </html>

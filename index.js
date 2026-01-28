@@ -36,8 +36,13 @@ app.use(express.static("public"));
 
 //connection avec la base de données
 connectDB();
+
+// Définir le modèle Tache
 const tacheSchema = new mongoose.Schema({}, { strict: false }); // accepte tous les champs
-const Tache = mongoose.model("Tache", tacheSchema, "tasks"); // "taches" = nom de ta collection
+const Tache = mongoose.model("Tache", tacheSchema, "tasks");
+
+// Exporter Tache pour que les handlers y accèdent
+global.Tache = Tache;
 
 //initialise les routes
 app.get("/", (req, res) => {

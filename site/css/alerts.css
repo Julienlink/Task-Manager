@@ -1,0 +1,51 @@
+/* ===== MESSAGES & ALERTS ===== */
+#errorMessage {
+    margin-bottom: 1rem;
+}
+
+.error {
+    background-color: #fee;
+    color: var(--danger-color);
+    padding: 1rem;
+    border-radius: var(--radius);
+    border-left: 4px solid var(--danger-color);
+    font-weight: 500;
+}
+
+.success {
+    background-color: #efe;
+    color: var(--success-color);
+    padding: 1rem;
+    border-radius: var(--radius);
+    border-left: 4px solid var(--success-color);
+    font-weight: 500;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* ===== LOADING ===== */
+#loading {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-light);
+    font-size: 1.1rem;
+    margin: 1rem 0;
+}
