@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require('cors');
 const hbs = require("hbs");
 const path = require("path");
 require('dotenv').config();
@@ -27,18 +28,25 @@ app.set('views', path.join(__dirname, 'src/views'));
 
 hbs.registerPartials(path.join(__dirname, "/src/views/partials"))
 
-
+// Configuration CORS
+app.use(cors()); // Autorise toutes les origines
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(express.static("public"));
 
 //connection avec la base de données
 connectDB();
+
+// Définir le modèle Tache
 const tacheSchema = new mongoose.Schema({}, { strict: false }); // accepte tous les champs
-const Tache = mongoose.model("Tache", tacheSchema, "tasks"); // "taches" = nom de ta collection
+const Tache = mongoose.model("Tache", tacheSchema, "tasks");
+
+// Exporter Tache pour que les handlers y accèdent
+global.Tache = Tache;
 
 //initialise les routes
 app.get("/", (req, res) => {
-  res.render("index");
+  res.status(200).json({ success: true, message: "Connecté à l'API"});
 });
 
 //inclure les routes

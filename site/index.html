@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionnaire de Tâches</title>
+    <!-- CSS Modular Import -->
+    <link href="./css/variables.css" rel="stylesheet">
+    <link href="./css/layout.css" rel="stylesheet">
+    <link href="./css/alerts.css" rel="stylesheet">
+    <link href="./css/buttons.css" rel="stylesheet">
+    <link href="./css/forms.css" rel="stylesheet">
+    <link href="./css/filters.css" rel="stylesheet">
+    <link href="./css/tasks.css" rel="stylesheet">
+    <link href="./css/modal.css" rel="stylesheet">
+    <link href="./css/utilities.css" rel="stylesheet">
+
+
+        <!-- Scripts modules -->
+    <script src="./js/config.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/filterManager.js"></script>
+    <script src="./js/taskManager.js"></script>
+    <script src="./js/subtaskManager.js"></script>
+    <script src="./js/commentManager.js"></script>
+    <script src="./js/uiManager.js"></script>
+    <script src="./js/main.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Gestionnaire de Tâches</h1>
+        
+        <div class="api-status" id="apiStatus">
+            ⚠️ Chargement de l'API...
+        </div>
+
+        <div id="errorMessage"></div>
+
+        <!-- Formulaire d'ajout simple -->
+        <div class="quick-add-form">
+            <div class="task-form">
+                <input 
+                    type="text" 
+                    id="taskInput" 
+                    placeholder="Ajouter une nouvelle tâche..."
+                    autocomplete="off"
+                >
+                <button class="btn btn-add" onclick="toggleAdvancedForm()">⚙️ Avancé</button>
+                <button class="btn btn-add" onclick="addTaskQuick()">Ajouter</button>
+            </div>
+        </div>
+
+        <!-- Formulaire complet -->
+        <div id="advancedForm" class="advanced-form" style="display: none;">
+            <h3>Ajouter une tâche complète</h3>
+            <form onsubmit="addTaskAdvanced(event)">
+                <div class="form-group">
+                    <label for="formTitre">Titre *</label>
+                    <input type="text" id="formTitre" required placeholder="Titre de la tâche">
+                </div>
+
+                <div class="form-group">
+                    <label for="formDescription">Description</label>
+                    <textarea id="formDescription" placeholder="Description détaillée..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="formStatut">Statut</label>
+                        <select id="formStatut">
+                            <option value="à faire">À faire</option>
+                            <option value="en cours">En cours</option>
+                            <option value="en retard">En retard</option>
+                            <option value="terminé">Terminé</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="formPriorite">Priorité</label>
+                        <select id="formPriorite">
+                            <option value="basse">🟢 Basse</option>
+                            <option value="moyen" selected>🟡 Moyen</option>
+                            <option value="haute">🔴 Haute</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="formCategorie">Catégorie</label>
+                        <input type="text" id="formCategorie" placeholder="Ex: Travail, Personnel...">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="formEcheance">Date d'échéance</label>
+                        <input type="date" id="formEcheance">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="formTags">Étiquettes (séparées par des virgules)</label>
+                    <input type="text" id="formTags" placeholder="Ex: urgent, important, bug...">
+                </div>
+
+                <fieldset class="author-section">
+                    <legend>Auteur</legend>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="formAuteurNom">Nom</label>
+                            <input type="text" id="formAuteurNom" placeholder="Nom">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="formAuteurPrenom">Prénom</label>
+                            <input type="text" id="formAuteurPrenom" placeholder="Prénom">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="formAuteurEmail">Email</label>
+                        <input type="email" id="formAuteurEmail" placeholder="email@example.com">
+                    </div>
+                </fieldset>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-add" id="submitBtn">✅ Ajouter la tâche</button>
+                    <button type="button" class="btn btn-cancel" onclick="cancelForm()">Annuler</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            ⏳ Chargement des tâches...
+        </div>
+
+        <!-- Section de filtrage et recherche -->
+        <div class="filter-section">
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="🔍 Rechercher une tâche..."
+                    onkeyup="applyFilters()"
+                >
+            </div>
+
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label for="filterStatut">Statut</label>
+                    <select id="filterStatut" onchange="applyFilters()">
+                        <option value="">Tous</option>
+                        <option value="à faire">À faire</option>
+                        <option value="en cours">En cours</option>
+                        <option value="terminé">Terminé</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterPriorite">Priorité</label>
+                    <select id="filterPriorite" onchange="applyFilters()">
+                        <option value="">Tous</option>
+                        <option value="haute">🔴 Haute</option>
+                        <option value="moyen">🟡 Moyen</option>
+                        <option value="basse">🟢 Basse</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterCategorie">Catégorie</label>
+                    <input 
+                        type="text" 
+                        id="filterCategorie" 
+                        placeholder="Ex: Travail..."
+                        onkeyup="applyFilters()"
+                    >
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterTags">Étiquettes</label>
+                    <input 
+                        type="text" 
+                        id="filterTags" 
+                        placeholder="Ex: urgent..."
+                        onkeyup="applyFilters()"
+                    >
+                </div>
+
+                <div class="filter-group">
+                    <label for="filterEcheance">Échéance</label>
+                    <select id="filterEcheance" onchange="applyFilters()">
+                        <option value="">Tous</option>
+                        <option value="retard">En retard</option>
+                        <option value="aujourdhui">Aujourd'hui</option>
+                        <option value="semaine">Cette semaine</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="sort-section">
+                <div class="sort-group">
+                    <label for="sortBy">Trier par</label>
+                    <select id="sortBy" onchange="applyFilters()">
+                        <option value="dateCreation">Date de création</option>
+                        <option value="echeance">Échéance</option>
+                        <option value="priorite">Priorité</option>
+                        <option value="titre">Titre</option>
+                    </select>
+                </div>
+
+                <div class="sort-group">
+                    <label for="sortOrder">Ordre</label>
+                    <select id="sortOrder" onchange="applyFilters()">
+                        <option value="desc">Décroissant</option>
+                        <option value="asc">Croissant</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-reset" onclick="resetFilters()">🔄 Réinitialiser</button>
+            </div>
+
+            <div class="stats-section" id="statsSection"></div>
+        </div>
+
+        <ul id="taskList"></ul>
+    </div>
+
+    <!-- Modale de détails -->
+    <div id="taskModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle"></h2>
+                <button class="btn-close" onclick="closeTaskModal()">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Description -->
+                <div class="detail-section">
+                    <h3>Description</h3>
+                    <p id="modalDescription" class="detail-text"></p>
+                </div>
+
+                <!-- Statut et Priorité -->
+                <div class="detail-row">
+                    <div class="detail-section">
+                        <h3>Statut</h3>
+                        <p id="modalStatut" class="detail-badge"></p>
+                    </div>
+                    <div class="detail-section">
+                        <h3>Priorité</h3>
+                        <p id="modalPriorite" class="detail-badge"></p>
+                    </div>
+                </div>
+
+                <!-- Catégorie et Échéance -->
+                <div class="detail-row">
+                    <div class="detail-section">
+                        <h3>Catégorie</h3>
+                        <p id="modalCategorie" class="detail-text"></p>
+                    </div>
+                    <div class="detail-section">
+                        <h3>Échéance</h3>
+                        <p id="modalEcheance" class="detail-text"></p>
+                    </div>
+                </div>
+
+                <!-- Étiquettes -->
+                <div class="detail-section" id="tagsSection" style="display: none;">
+                    <h3>Étiquettes</h3>
+                    <div id="modalTags" class="tags-container"></div>
+                </div>
+
+                <!-- Auteur -->
+                <div class="detail-section">
+                    <h3>Auteur</h3>
+                    <div id="modalAuteur" class="detail-text"></div>
+                </div>
+
+                <!-- Dates de création/modification -->
+                <div class="detail-row">
+                    <div class="detail-section">
+                        <h3>Créée le</h3>
+                        <p id="modalDateCreation" class="detail-text"></p>
+                    </div>
+                    <div class="detail-section">
+                        <h3>Modifiée le</h3>
+                        <p id="modalDateModification" class="detail-text"></p>
+                    </div>
+                </div>
+
+                <!-- Sous-tâches -->
+                <div class="detail-section" id="sousTaskesSection" style="display: none;">
+                    <h3>Sous-tâches</h3>
+                    <ul id="modalSousTaches" class="sous-taches-list"></ul>
+                    <div class="add-subtask-form" style="margin-top: 12px;">
+                        <input type="text" id="newSubtaskInput" placeholder="Ajouter une sous-tâche..." style="margin-right: 6px;">
+                        <button class="btn btn-small" onclick="addSubtask()">➕</button>
+                    </div>
+                </div>
+
+                <!-- Commentaires -->
+                <div class="detail-section" id="commentairesSection">
+                    <h3>Commentaires</h3>
+                    <ul id="modalCommentaires" class="comments-list"></ul>
+                    <div class="add-comment-form" style="margin-top: 12px;">
+                        <textarea id="newCommentInput" placeholder="Ajouter un commentaire..." style="width: 100%; min-height: 60px; margin-bottom: 6px;"></textarea>
+                        <button class="btn btn-small" onclick="addComment()">💬 Commenter</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-edit" onclick="editCurrentTask()">✏️ Éditer</button>
+                <button class="btn btn-delete" onclick="deleteCurrentTask()">🗑️ Supprimer</button>
+                <button class="btn btn-cancel" onclick="closeTaskModal()">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+</html>

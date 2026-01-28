@@ -1,0 +1,39 @@
+/* ===== LAYOUT & CONTAINER ===== */
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: var(--white);
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: var(--shadow-lg);
+}
+
+h1 {
+    color: var(--secondary-color);
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    text-align: center;
+    border-bottom: 3px solid var(--primary-color);
+    padding-bottom: 1rem;
+}
+
+h2, h3 {
+    color: var(--secondary-color);
+    margin: 1rem 0 0.5rem 0;
+}
+
+h3 {
+    font-size: 1.1rem;
+}
+
+/* ===== API STATUS ===== */
+.api-status {
+    text-align: center;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--radius);
+    background-color: var(--light-bg);
+    color: var(--text-dark);
+    font-weight: 500;
+    font-size: 0.95rem;
+}
