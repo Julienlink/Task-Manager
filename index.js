@@ -46,7 +46,7 @@ global.Tache = Tache;
 
 //initialise les routes
 app.get("/", (req, res) => {
-  res.render("index");
+  res.status(200).json({ success: true, message: "Connecté à l'API"});
 });
 
 //inclure les routes
